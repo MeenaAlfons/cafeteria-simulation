@@ -63,11 +63,13 @@ baseCaseCafeteria = cf.Caferetia(
     hotFoodEmployees=1,
     sandwichEmployees=1
 )
-print("Start base simulation")
-baseCollectedStats, n = F.achieveTargetConfigenceHalfIntervals(lambda:baseCaseCafeteria.runManySeparate(5), targetConfidenceHalfInterval, alpha)
+baseCollectedStats = baseCaseCafeteria.run()
 print(baseCollectedStats)
-print(baseCollectedStats["hotFoodDelayAverage"].shape)
-print(n)
+print("Start base simulation")
+# baseCollectedStats, n = F.achieveTargetConfigenceHalfIntervals(lambda:baseCaseCafeteria.runManySeparate(5), targetConfidenceHalfInterval, alpha)
+# print(baseCollectedStats)
+# print(baseCollectedStats["hotFoodDelayAverage"].shape)
+# print(n)
 print("End base simulation")
 
 
@@ -81,7 +83,7 @@ a_i_Cafeteria = cf.Caferetia(
     hotFoodEmployees=1,
     sandwichEmployees=1
 )
-a_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_i_Cafeteria, targetConfidenceHalfInterval, alpha)
+# a_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_i_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 ###
 # (a) (ii) 
@@ -93,7 +95,7 @@ a_ii_Cafeteria = cf.Caferetia(
     hotFoodEmployees=2,
     sandwichEmployees=1
 )
-a_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
+# a_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 ###
 # (a) (iii) 
@@ -105,7 +107,7 @@ a_iii_Cafeteria = cf.Caferetia(
     hotFoodEmployees=1,
     sandwichEmployees=2
 )
-a_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
+# a_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 ###
 # (b) (i) 
@@ -117,7 +119,7 @@ b_i_Cafeteria = cf.Caferetia(
     hotFoodEmployees=2,
     sandwichEmployees=2
 )
-b_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_i_Cafeteria, targetConfidenceHalfInterval, alpha)
+# b_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_i_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 
 ###
@@ -130,7 +132,7 @@ b_ii_Cafeteria = cf.Caferetia(
     hotFoodEmployees=2,
     sandwichEmployees=1
 )
-b_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
+# b_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 ###
 # (b) (iii)
@@ -142,7 +144,7 @@ b_iii_Cafeteria = cf.Caferetia(
     hotFoodEmployees=1,
     sandwichEmployees=2
 )
-b_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
+# b_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
 
 ###
 # (c)
@@ -154,4 +156,4 @@ c_Cafeteria = cf.Caferetia(
     hotFoodEmployees=2,
     sandwichEmployees=2
 )
-c_CollectedStats = F.achieveTargetConfigenceHalfIntervals(c_Cafeteria, targetConfidenceHalfInterval, alpha)
+# c_CollectedStats = F.achieveTargetConfigenceHalfIntervals(c_Cafeteria, targetConfidenceHalfInterval, alpha)

@@ -113,6 +113,12 @@ def meanEstimate(values, alpha=0.05):
     return pointEstimate, confidenceHalfInterval
 
 
+def collectRands(collectedDict, dictionary):
+    for key, value in dictionary.items():
+        if not key in collectedDict:
+            collectedDict[key] = np.array([])
+        collectedDict[key] = np.row_stack((collectedDict[key], value))
+            
 def collectStats(collectedStats, stats):
     for key, value in stats.items():
         if not key in collectedStats:

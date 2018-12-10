@@ -1,5 +1,6 @@
 import numpy as np
 import functions as F
+import pprint
 
 class Caferetia(object):
 
@@ -53,47 +54,97 @@ class Caferetia(object):
         self.sandwichACTRand = lambda output_size=None : stream8.uniform(low=self.SANDWICH_ACT_UNIFORM[0], high=self.SANDWICH_ACT_UNIFORM[1], size=output_size)
         self.drinksACTRand = lambda output_size=None : stream9.uniform(low=self.DRINKS_ACT_UNIFORM[0], high=self.DRINKS_ACT_UNIFORM[1], size=output_size)
 
-
-    def run(self):
+    def generateRands(self):
         self.init()
 
         groupInterarrivals = np.array(list(F.rand_with_sum(self.groupInterarrivalRand, self.simulationPeriod)))
+
+        groupCount = groupInterarrivals.size
+        groupSizes = self.groupSizeRand(groupCount)
+        customerCount = np.sum(groupSizes)
+        routeChoices = self.routeChoiceRand(customerCount)
+
+        hotFoodCustomerCount = np.count_nonzero(routeChoices == self.HOT_FOOD_CHOICE)
+        sandwichCustomerCount = np.count_nonzero(routeChoices == self.SANDWICH_CHOICE)
+        drinksCustomerCount = np.count_nonzero(routeChoices == self.DRINKS_CHOICE)
+
+        hotFoodST = self.hotFoodSTRand(hotFoodCustomerCount)
+        sandwichST = self.sandwichSTRand(sandwichCustomerCount)
+        drinksST = self.drinksSTRand(customerCount)
+
+        hotFoodACT = self.hotFoodACTRand(hotFoodCustomerCount)
+        sandwichACT = self.sandwichACTRand(sandwichCustomerCount)
+        drinksACT = self.drinksACTRand(customerCount)
+
+        rands = {}
+        rands["groupInterarrivals"] = groupInterarrivals
+        rands["groupSizes"] = groupSizes
+        rands["routeChoices"] = routeChoices
+        rands["hotFoodST"] = hotFoodST
+        rands["sandwichST"] = sandwichST
+        rands["drinksST"] = drinksST
+        rands["hotFoodACT"] = hotFoodACT
+        rands["sandwichACT"] = sandwichACT
+        rands["drinksACT"] = drinksACT
+        return rands
+
+    def generateManyRandom(self, n):
+        collectedRands = {}
+        for i in range(n):
+            rands = self.generateRands()
+            F.collectRands(collectedRands, rands)
+        return collectedRands
+
+    def run(self):
+        self.init()
+        rands = self.generateManyRandom(3)
+        print("many rands")
+        pprint.pprint(rands)
+
+        groupInterarrivals = np.array(list(F.rand_with_sum(self.groupInterarrivalRand, self.simulationPeriod)))
+
+        groupCount = groupInterarrivals.size
+        groupSizes = self.groupSizeRand(groupCount)
+        customerCount = np.sum(groupSizes)
+        routeChoices = self.routeChoiceRand(customerCount)
+
+        hotFoodCustomerCount = np.count_nonzero(routeChoices == self.HOT_FOOD_CHOICE)
+        sandwichCustomerCount = np.count_nonzero(routeChoices == self.SANDWICH_CHOICE)
+        drinksCustomerCount = np.count_nonzero(routeChoices == self.DRINKS_CHOICE)
+
+        hotFoodST = self.hotFoodSTRand(hotFoodCustomerCount)
+        sandwichST = self.sandwichSTRand(sandwichCustomerCount)
+        drinksST = self.drinksSTRand(customerCount)
+
+        hotFoodACT = self.hotFoodACTRand(hotFoodCustomerCount)
+        sandwichACT = self.sandwichACTRand(sandwichCustomerCount)
+        drinksACT = self.drinksACTRand(customerCount)
+
+
         groupAbsArrivals = np.add.accumulate(groupInterarrivals)
 
-        num_groups = groupAbsArrivals.size
-        groupSizes = self.groupSizeRand(num_groups)
-
         customerAbsArrivals = np.repeat(groupAbsArrivals, groupSizes)
-        customerCount = customerAbsArrivals.size
-
-        routeChoices = self.routeChoiceRand(customerCount)
 
         hotFoodArrivalTimes = customerAbsArrivals[routeChoices == self.HOT_FOOD_CHOICE]
         sandwichArrivalTimes = customerAbsArrivals[routeChoices == self.SANDWICH_CHOICE]
         drinksArrivalTimes = customerAbsArrivals[routeChoices == self.DRINKS_CHOICE]
-        
-        hotFoodCustomerCount = hotFoodArrivalTimes.size
-        sandwichCustomerCount = sandwichArrivalTimes.size
-        drinksCustomerCount = drinksArrivalTimes.size
 
-        hotFoodST = self.hotFoodSTRand(hotFoodArrivalTimes.shape)
         hotFoodServiceStart, hotFoodServiceEnd = F.processQueue(hotFoodArrivalTimes, hotFoodST)
 
-        sandwichST = self.sandwichSTRand(sandwichArrivalTimes.shape)
         sandwichServiceStart, sandwichServiceEnd = F.processQueue(sandwichArrivalTimes, sandwichST)
 
         allDrinksStartTimes = np.concatenate((
             hotFoodServiceEnd,
             sandwichServiceEnd,
             drinksArrivalTimes))
-        allDrinksEndTimes = allDrinksStartTimes + self.drinksSTRand(allDrinksStartTimes.shape)
+        allDrinksEndTimes = allDrinksStartTimes + drinksST
 
         act = np.concatenate((
-            self.hotFoodACTRand(hotFoodServiceEnd.shape),
-            self.sandwichACTRand(sandwichServiceEnd.shape),
+            hotFoodACT,
+            sandwichACT,
             np.zeros(drinksArrivalTimes.shape)))
 
-        act = act + self.drinksACTRand(act.shape)
+        act = act + drinksACT
 
         sortedCashierArrivalsIndices = np.argsort(allDrinksEndTimes)
         invertedCashierArrivalsIndices = np.argsort(sortedCashierArrivalsIndices)
@@ -231,3 +282,4 @@ class Caferetia(object):
         return collectedStats
 
     def runMany(self, n):
+        pass
