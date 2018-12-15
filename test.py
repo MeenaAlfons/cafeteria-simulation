@@ -2,6 +2,7 @@ import time
 import pprint
 import cafeteria as cf
 import functions as F
+import sim_functions as simF
 import pdf_functions as PDF
 
 start_time = time.time()
@@ -122,73 +123,77 @@ cases = {
 
 baseCase = "base"
 newCases = [
-    "a_i"
-    ,
-    "a_ii"
+    # "a_i" # 16 Long 
+    # ,
+    "a_ii" 
     ,
     "a_iii"
     ,
     "b_i"
-    ,
-    "b_ii"
-    ,
-    "b_iii"
-    ,
-    "c"
+    # ,
+    # "b_ii" # 4 Long
+    # ,
+    # "b_iii" # 16 Long
+    # ,
+    # "c"   # 4 Long
     ]
 allCases = [baseCase] + newCases
 
 overall_alpha = 0.1
 alpha = overall_alpha / len(targetConfidenceHalfInterval)
 
-multipleStates = {}
-multipleEstimates = {}
-numReplications = {}
-maxN = 0
+# multipleStates = {}
+# multipleEstimates = {}
+# numReplications = {}
+# maxN = 0
 
-for key in allCases:
-    case = cases[key]
-    print('')
-    print(key + " case simulation: Started ...")
-    caseCafeteria = cf.Caferetia(**case)
-    collectedStats, meanEstimates, N = F.simulateWithTargetConfidence(caseCafeteria, key, targetConfidenceHalfInterval, alpha)
-    multipleStates[key] = collectedStats
-    multipleEstimates[key] = meanEstimates
-    numReplications[key] = N
-    if N > maxN:
-        maxN = N
-    print(key + " case simulation: Finished", N)
+# for key in allCases:
+#     case = cases[key]
+#     print('')
+#     print(key + " case simulation: Started ...")
+#     caseCafeteria = cf.Caferetia(**case)
+#     collectedStats, meanEstimates, N = F.simulateWithTargetConfidence(caseCafeteria, key, targetConfidenceHalfInterval, alpha)
+#     multipleStates[key] = collectedStats
+#     multipleEstimates[key] = meanEstimates
+#     numReplications[key] = N
+#     if N > maxN:
+#         maxN = N
+#     print(key + " case simulation: Finished", N)
 
-print("N=", maxN)
+# print("N=", maxN)
 
-# continue remaining replications
-for key in allCases:
-    case = cases[key]
-    remainingN = maxN - numReplications[key]
-    if remainingN > 0:
-        print("simulate more {} for {}".format(remainingN, key))
-        collectedStats, meanEstimates = F.simulateMore(caseCafeteria, multipleStates[key], remainingN, alpha)
-        multipleStates[key] = collectedStats
-        multipleEstimates[key] = meanEstimates
+# # continue remaining replications
+# for key in allCases:
+#     case = cases[key]
+#     remainingN = maxN - numReplications[key]
+#     if remainingN > 0:
+#         print("simulate more {} for {}".format(remainingN, key))
+#         collectedStats, meanEstimates = F.simulateMore(caseCafeteria, multipleStates[key], remainingN, alpha)
+#         multipleStates[key] = collectedStats
+#         multipleEstimates[key] = meanEstimates
 
 
-diffEstimatesDict = {}
+# diffEstimatesDict = {}
+# for newCase in newCases:
+#     print("Running tests for {} ...".format(newCase))
+#     diffEstimatesDict[newCase] = {}
+#     diffEstimatesDict[newCase]["paired_t"] = F.testMany(F.pairedTTest, multipleStates[newCase], multipleStates["base"], alpha)
+#     diffEstimatesDict[newCase]["welch"] = F.testMany(F.welchTest, multipleStates[newCase], multipleStates["base"], alpha)
 
-for newCase in newCases:
-    print("Running tests for {} ...".format(newCase))
-    diffEstimatesDict[newCase] = {}
-    diffEstimatesDict[newCase]["paired_t"] = F.testMany(F.pairedTTest, multipleStates[newCase], multipleStates["base"], alpha)
-    diffEstimatesDict[newCase]["welch"] = F.testMany(F.welchTest, multipleStates[newCase], multipleStates["base"], alpha)
+
+multipleStates, multipleEstimates, numReplications, maxN = simF.simulateManyEqualized(allCases, cases, targetConfidenceHalfInterval, alpha)
 
 F.writeMultipleStatesToFile(multipleStates)
-F.printSummaryPdf(multipleEstimates, "data/estimates.txt")
-# F.printSummaryPdf(diffEstimatesDict["paired_t"], "data/pairedTEstimates.txt")
-# F.printSummaryPdf(diffEstimatesDict["welch"], "data/welchEstimates.txt")
 
+# F.printSummaryPdf(multipleEstimates, "data/estimates.txt")
+# F.printSummaryPdf(diffEstimatesDict["paired_t"], "data/pairedTEstimates.txt")
+# F.printSummaryPdf(diffEstimatesDict["welch"], "data/welchEstimates.txt") 
+
+diffEstimatesDict = F.compareWithBase(multipleStates, "base", newCases, alpha)
 judgedDiffEstimatesDict = F.judgeDiffEstimates(diffEstimatesDict)
  
-pdf = PDF.pdfOfDiffEstimates(judgedDiffEstimatesDict, measures, cases["base"], cases)
-pdf.output("data/diffReport.pdf")
+reportPdf = PDF.pdfReport(multipleEstimates, judgedDiffEstimatesDict, measures, cases["base"], cases, maxN)
+reportPdf.output("data/diffReport.pdf")
 
 F.printElapsed(start_time)
- 
+  

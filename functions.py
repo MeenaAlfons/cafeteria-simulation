@@ -4,6 +4,8 @@ import pprint
 import json
 import time
 import datetime
+from json_tricks import dumps
+
 
 def rand_with_sum(rand, n):
     while n > 0:
@@ -165,18 +167,19 @@ def calculateMeanEstimate(stats, alpha):
     return results
 
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if type(obj).__module__ == np.__name__:
-            if isinstance(obj, np.ndarray):
-                return obj.tolist()
-            else:
-                return obj.item()
-        return json.JSONEncoder.default(self, obj)
+# class NumpyEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if type(obj).__module__ == np.__name__:
+#             if isinstance(obj, np.ndarray):
+#                 return obj.tolist()
+#             else:
+#                 return obj.item()
+#         return json.JSONEncoder.default(self, obj)
 
 def writeStatesToFile(stats, filename):
     with open(filename, 'w') as file:
-        file.write(json.dumps(stats, cls=NumpyEncoder)) # use `json.loads` to do the reverse
+        # file.write(json.dumps(stats, cls=NumpyEncoder)) # use `json.loads` to do the reverse
+        file.write(dumps(stats))
 
 def writeMultipleStatesToFile(multipleStats):
     for key, stats in multipleStats.items():
@@ -276,3 +279,13 @@ def judgeDiffEstimates(diffEstimatesDict):
                 comp = calcComparison(estimate, confidence)
                 judgedDiffEstimatesDict[case][testName][estimateKey] = (estimate, confidence, comp)
     return judgedDiffEstimatesDict
+
+
+def compareWithBase(multipleStates, baseCase, newCases, alpha):
+    diffEstimatesDict = {}
+    for newCase in newCases:
+        print("Running tests for {} ...".format(newCase))
+        diffEstimatesDict[newCase] = {}
+        diffEstimatesDict[newCase]["paired_t"] = testMany(pairedTTest, multipleStates[newCase], multipleStates[baseCase], alpha)
+        diffEstimatesDict[newCase]["welch"] = testMany(welchTest, multipleStates[newCase], multipleStates[baseCase], alpha)
+    return diffEstimatesDict
