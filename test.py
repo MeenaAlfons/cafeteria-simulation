@@ -1,157 +1,194 @@
-import cafeteria as cf
+import time
 import pprint
+import cafeteria as cf
 import functions as F
+import pdf_functions as PDF
 
-cafeteria = cf.Caferetia()
-
-stats = cafeteria.run()
-
-# print(stats)
-pprint.pprint(stats)
-
-# TODO Think about achieving target relative error which mean achieving
-# target confidence-interval half-length
+start_time = time.time()
 
 # Output measures
 # - Conside finding mean estimate of the output random variables
 # - Conside find persentile estimate of the output random variables
+measures = [
+    "hotFoodDelayAverage",
+    "hotFoodDelayMax",
+    "hotFoodTotalDelayAverage",
+    "hotFoodTotalDelayMax",
+    "hotFoodQueueCountTimeAverage",
+    "hotFoodQueueCountMax",
 
-relativeError = 0.1
+    "sandwichDelayAverage",
+    "sandwichDelayMax",
+    "sandwichTotalDelayAverage",
+    "sandwichTotalDelayMax",
+    "sandwichQueueCountTimeAverage",
+    "sandwichQueueCountMax",
+
+    "drinksTotalDelayAverage",
+    "drinksTotalDelayMax",
+
+    "cashierDelayAverage",
+    "cashierDelayMax",
+    "cashierQueueCountTimeAverage",
+    "cashierQueueCountMax",
+
+    "overallTotalDelayAverage",
+
+    "customerInSystemCountTimeAverage",
+    "customerInSystemCountTimeMax"
+]
 
 targetConfidenceHalfInterval = {
-  "hotFoodDelayAverage": ('relative', relativeError),
-  "sandwichDelayAverage": ('relative', relativeError),
-  "cashierDelayAverage": ('relative', relativeError),
+  "hotFoodDelayAverage": ('relative', 0.1),
+  "sandwichDelayAverage": ('relative', 0.1),
+  "cashierDelayAverage": ('relative', 0.25),
 
-  "hotFoodDelayMax": ('relative', relativeError),
-  "sandwichDelayMax": ('relative', relativeError),
-  "cashierDelayMax": ('relative', relativeError),
+  "hotFoodDelayMax": ('relative', 0.1),
+  "sandwichDelayMax": ('relative', 0.1),
+  "cashierDelayMax": ('relative', 0.25),
   
-  "hotFoodTotalDelayAverage": ('relative', relativeError),
-  "sandwichTotalDelayAverage": ('relative', relativeError),
-  "drinksTotalDelayAverage": ('relative', relativeError),
+  "hotFoodTotalDelayAverage": ('relative', 0.1),
+  "sandwichTotalDelayAverage": ('relative', 0.1),
+  "drinksTotalDelayAverage": ('relative', 0.25),
   
-  "hotFoodTotalDelayMax": ('relative', relativeError),
-  "sandwichTotalDelayMax": ('relative', relativeError),
-  "drinksTotalDelayMax": ('relative', relativeError),
+  "hotFoodTotalDelayMax": ('relative', 0.1),
+  "sandwichTotalDelayMax": ('relative', 0.1),
+  "drinksTotalDelayMax": ('relative', 0.25),
 
-  "overallTotalDelayAverage": ('relative', relativeError),
+  "overallTotalDelayAverage": ('relative', 0.1),
   
-  "hotFoodQueueCountTimeAverage": ('relative', relativeError),
-  "hotFoodQueueCountMax": ('relative', relativeError),
+  "hotFoodQueueCountTimeAverage": ('relative', 0.1),
+  "hotFoodQueueCountMax": ('relative', 0.1),
   
-  "sandwichQueueCountTimeAverage": ('relative', relativeError),
-  "sandwichQueueCountMax": ('relative', relativeError),
+  "sandwichQueueCountTimeAverage": ('relative', 0.2),
+  "sandwichQueueCountMax": ('relative', 0.2),
   
-  "cashierQueueCountTimeAverage": ('relative', relativeError),
-  "cashierQueueCountMax": ('relative', relativeError),
+  "cashierQueueCountTimeAverage": ('relative', 0.1),
+  "cashierQueueCountMax": ('relative', 0.1),
   
-  "customerInSystemCountTimeAverage": ('relative', relativeError),
-  "customerInSystemCountTimeMax": ('relative', relativeError),
+  "customerInSystemCountTimeAverage": ('relative', 0.1),
+  "customerInSystemCountTimeMax": ('relative', 0.1),
 }
+
+cases = {
+    "base": {
+        "cashierEmployees": 2,
+        "hotFoodEmployees": 1,
+        "sandwichEmployees": 1
+    }
+    ,
+    "a_i": {
+        "cashierEmployees": 3,
+        "hotFoodEmployees": 1,
+        "sandwichEmployees": 1
+    }
+    ,
+    "a_ii": {
+        "cashierEmployees": 2,
+        "hotFoodEmployees": 2,
+        "sandwichEmployees": 1
+    }
+    ,
+    "a_iii": {
+        "cashierEmployees": 2,
+        "hotFoodEmployees": 1,
+        "sandwichEmployees": 2
+    }
+    ,
+    "b_i": {
+        "cashierEmployees": 2,
+        "hotFoodEmployees": 2,
+        "sandwichEmployees": 2
+    }
+    ,
+    "b_ii": {
+        "cashierEmployees": 3,
+        "hotFoodEmployees": 2,
+        "sandwichEmployees": 1
+    }
+    ,
+    "b_iii": {
+        "cashierEmployees": 3,
+        "hotFoodEmployees": 1,
+        "sandwichEmployees": 2
+    }
+    ,
+    "c": {
+        "cashierEmployees": 3,
+        "hotFoodEmployees": 2,
+        "sandwichEmployees": 2
+    }
+}
+
+baseCase = "base"
+newCases = [
+    "a_i"
+    ,
+    "a_ii"
+    ,
+    "a_iii"
+    ,
+    "b_i"
+    ,
+    "b_ii"
+    ,
+    "b_iii"
+    ,
+    "c"
+    ]
+allCases = [baseCase] + newCases
 
 overall_alpha = 0.1
 alpha = overall_alpha / len(targetConfidenceHalfInterval)
 
-###
-# Base case
-# cashier employees = 2
-# hot food employees = 1
-# sandwich employees = 1
-baseCaseCafeteria = cf.Caferetia(
-    cashierEmployees=2,
-    hotFoodEmployees=1,
-    sandwichEmployees=1
-)
-print("Start base simulation")
-baseCollectedStats, n = F.achieveTargetConfigenceHalfIntervals(lambda:baseCaseCafeteria.runManySeparate(5), targetConfidenceHalfInterval, alpha)
-print(baseCollectedStats)
-print(baseCollectedStats["hotFoodDelayAverage"].shape)
-print(n)
-print("End base simulation")
+multipleStates = {}
+multipleEstimates = {}
+numReplications = {}
+maxN = 0
+
+for key in allCases:
+    case = cases[key]
+    print('')
+    print(key + " case simulation: Started ...")
+    caseCafeteria = cf.Caferetia(**case)
+    collectedStats, meanEstimates, N = F.simulateWithTargetConfidence(caseCafeteria, key, targetConfidenceHalfInterval, alpha)
+    multipleStates[key] = collectedStats
+    multipleEstimates[key] = meanEstimates
+    numReplications[key] = N
+    if N > maxN:
+        maxN = N
+    print(key + " case simulation: Finished", N)
+
+print("N=", maxN)
+
+# continue remaining replications
+for key in allCases:
+    case = cases[key]
+    remainingN = maxN - numReplications[key]
+    if remainingN > 0:
+        print("simulate more {} for {}".format(remainingN, key))
+        collectedStats, meanEstimates = F.simulateMore(caseCafeteria, multipleStates[key], remainingN, alpha)
+        multipleStates[key] = collectedStats
+        multipleEstimates[key] = meanEstimates
 
 
-###
-# (a) (i) 
-# cashier employees = 3
-# hot food employees = 1
-# sandwich employees = 1
-a_i_Cafeteria = cf.Caferetia(
-    cashierEmployees=3,
-    hotFoodEmployees=1,
-    sandwichEmployees=1
-)
-a_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_i_Cafeteria, targetConfidenceHalfInterval, alpha)
+diffEstimatesDict = {}
 
-###
-# (a) (ii) 
-# cashier employees = 2
-# hot food employees = 2
-# sandwich employees = 1
-a_ii_Cafeteria = cf.Caferetia(
-    cashierEmployees=2,
-    hotFoodEmployees=2,
-    sandwichEmployees=1
-)
-a_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
+for newCase in newCases:
+    print("Running tests for {} ...".format(newCase))
+    diffEstimatesDict[newCase] = {}
+    diffEstimatesDict[newCase]["paired_t"] = F.testMany(F.pairedTTest, multipleStates[newCase], multipleStates["base"], alpha)
+    diffEstimatesDict[newCase]["welch"] = F.testMany(F.welchTest, multipleStates[newCase], multipleStates["base"], alpha)
 
-###
-# (a) (iii) 
-# cashier employees = 2
-# hot food employees = 1
-# sandwich employees = 2
-a_iii_Cafeteria = cf.Caferetia(
-    cashierEmployees=2,
-    hotFoodEmployees=1,
-    sandwichEmployees=2
-)
-a_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(a_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
+F.writeMultipleStatesToFile(multipleStates)
+F.printSummaryPdf(multipleEstimates, "data/estimates.txt")
+# F.printSummaryPdf(diffEstimatesDict["paired_t"], "data/pairedTEstimates.txt")
+# F.printSummaryPdf(diffEstimatesDict["welch"], "data/welchEstimates.txt")
 
-###
-# (b) (i) 
-# cashier employees = 2
-# hot food employees = 2
-# sandwich employees = 2
-b_i_Cafeteria = cf.Caferetia(
-    cashierEmployees=2,
-    hotFoodEmployees=2,
-    sandwichEmployees=2
-)
-b_i_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_i_Cafeteria, targetConfidenceHalfInterval, alpha)
+judgedDiffEstimatesDict = F.judgeDiffEstimates(diffEstimatesDict)
+ 
+pdf = PDF.pdfOfDiffEstimates(judgedDiffEstimatesDict, measures, cases["base"], cases)
+pdf.output("data/diffReport.pdf")
 
-
-###
-# (b) (ii) 
-# cashier employees = 3
-# hot food employees = 2
-# sandwich employees = 1
-b_ii_Cafeteria = cf.Caferetia(
-    cashierEmployees=3,
-    hotFoodEmployees=2,
-    sandwichEmployees=1
-)
-b_ii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_ii_Cafeteria, targetConfidenceHalfInterval, alpha)
-
-###
-# (b) (iii)
-# cashier employees = 3
-# hot food employees = 1
-# sandwich employees = 2
-b_iii_Cafeteria = cf.Caferetia(
-    cashierEmployees=3,
-    hotFoodEmployees=1,
-    sandwichEmployees=2
-)
-b_iii_CollectedStats = F.achieveTargetConfigenceHalfIntervals(b_iii_Cafeteria, targetConfidenceHalfInterval, alpha)
-
-###
-# (c)
-# cashier employees = 3
-# hot food employees = 2
-# sandwich employees = 2
-c_Cafeteria = cf.Caferetia(
-    cashierEmployees=3,
-    hotFoodEmployees=2,
-    sandwichEmployees=2
-)
-c_CollectedStats = F.achieveTargetConfigenceHalfIntervals(c_Cafeteria, targetConfidenceHalfInterval, alpha)
+F.printElapsed(start_time)
+ 
