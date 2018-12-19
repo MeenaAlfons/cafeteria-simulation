@@ -30,8 +30,8 @@ def headline(pdf, text, color={"r":0, "g":0, "b":0}):
     pdf.set_text_color(**color)
     pdf.cell(200, 10, txt=text, ln=1, align="L")
 
-def body(pdf, text, color={"r":0, "g":0, "b":0}):
-    pdf.set_font("Arial", size=12)
+def body(pdf, text, color={"r":0, "g":0, "b":0}, style=""):
+    pdf.set_font("Arial", size=12, style=style)
     pdf.set_text_color(**color)
     pdf.multi_cell(180, 5, txt=text, align="L")
 
@@ -69,9 +69,59 @@ def paramCell(pdf, text, color={"r":0, "g":0, "b":0}):
     pdf.set_text_color(**color)
     pdf.cell(25, 5, txt=text, align="L", border=1)
     
+def caseCell(pdf, text, color={"r":0, "g":0, "b":0}):
+    pdf.set_font("Arial", size=10)
+    pdf.set_text_color(**color)
+    pdf.cell(25, 5, txt=text, align="L", border=1)
+
+def caseParamCell(pdf, text, color={"r":0, "g":0, "b":0}):
+    pdf.set_font("Arial", size=10)
+    pdf.set_text_color(**color)
+    pdf.cell(40, 5, txt=text, align="L", border=1)
+
+
 
 def printIntro(pdf, numReplications):
     title(pdf, "Introduction")
+    body(pdf,
+    "\nThis report is the output of a simulation study on the student-center"
+    " cafeteria at Big State University. The target of the simulation is to"
+    " compare different configurations of the cafeteria where different number"
+    " of employees are assigned different roles."
+    )
+    body(pdf,
+    "Here are the interesting cases:"
+    )
+
+    # TODO Print cases
+
+    body(pdf, 
+    "All the cases have been run number of replications to acheive specific"
+    " target confidence interval for specific performance measures. Some cases"
+    " achieved the target confidence intervals for all measures by a"
+    " relatively small number of replications (hundreds). However, some other"
+    " cases required larger number of replications to achieve the same"
+    " confidence intervals (thousands)."
+    )
+    
+    body(pdf, 
+    "In order to be able to use paired-t method for output comparison the"
+    " number of replications need to be the same for all systems. So,"
+    " additional replication are run so that all cases will have the same"
+    " total number of replications."
+    )
+    
+    body(pdf, 
+    "Total replications for each case = {}".format(numReplications),
+    style="B"
+    )
+
+    body(pdf, 
+    "The following pages contain the mean estimates of all performane"
+    " measures for all cases in addition to confidence intervals for each"
+    " estimate." 
+    )
+    
     body(pdf, 
     "\nAssume X is some measurement"
     " random variable. Xnew and Xbase are the random variables for the new case"
@@ -85,13 +135,6 @@ def printIntro(pdf, numReplications):
     " Negative diffs are marked in green which indicates smaller measurement"
     " for the new cse. Whenever the confidence interval contains zero this"
     " indicates a tie and is printed in black.\n\n"
-
-    "All the cases have been run number of replications to acheive specific"
-    " target confidence interval for each. Then more replication are made for"
-    " each cases so that all of them will have the same total number of"
-    " replications."
-    
-    "Total replications for each case = {}".format(numReplications)
     )
     pdf.ln()
 
@@ -250,17 +293,100 @@ def diffPage(pdf, caseName, baseParams, caseParams, caseDiffEstimates, measures)
     printParams(pdf, caseName, baseParams, caseParams)
     printMultiDiffEstimatesTogether(pdf, caseDiffEstimates, measures)
 
-def pdfReport(multipleEstimates, diffEstimatesDict, measures, baseParams, newParamsDict, numReplications):
+def printCases(pdf, paramsDict):
+    caseCell(pdf, "")
+    for caseName, params in paramsDict.items():
+        for paramName, value in params.items():
+            caseParamCell(pdf, paramName)
+        break
+    pdf.ln()
+
+    for caseName, params in paramsDict.items():
+        caseCell(pdf, caseName)
+        for paramName, value in params.items():
+            caseParamCell(pdf, str(value))
+        pdf.ln()
+    pdf.ln()
+
+def pdfReport(multipleEstimates, diffEstimatesDict, measures, baseCase, paramsDict, numReplications):
     pdf = FPDF()
-    introPage(pdf, numReplications)
+    pdf.add_page()
+    title(pdf, "Introduction")
+    pdf.ln()
+    
+    body(pdf,
+    "This report is the output of a simulation study on the student-center"
+    " cafeteria at Big State University. The target of the simulation is to"
+    " compare different configurations of the cafeteria where different number"
+    " of employees are assigned different roles."
+    )
+    pdf.ln()
+    
+    body(pdf,
+    "Here are the interesting cases:"
+    )
+    pdf.ln()
+    
+
+    # Print cases
+    printCases(pdf, paramsDict)
+    pdf.ln()
+
+    body(pdf, 
+    "All the cases have been run number of replications to acheive specific"
+    " target confidence interval for specific performance measures. Some cases"
+    " achieved the target confidence intervals for all measures by a"
+    " relatively small number of replications (hundreds). However, some other"
+    " cases required larger number of replications to achieve the same"
+    " confidence intervals (thousands)."
+    )
+    pdf.ln()
+    
+    body(pdf, 
+    "In order to be able to use paired-t method for output comparison the"
+    " number of replications need to be the same for all systems. So,"
+    " additional replication are run so that all cases will have the same"
+    " total number of replications."
+    )
+    pdf.ln()
+    
+    body(pdf, 
+    "Total replications for each case = {}".format(numReplications),
+    style="B"
+    )
+    pdf.ln()
+
+    body(pdf, 
+    "The following pages contain the mean estimates of all performane"
+    " measures for all cases in addition to confidence intervals for each"
+    " estimate." 
+    )
 
     printMultipleEstimates(pdf, multipleEstimates, measures)
+
+    
+    pdf.add_page()
+    body(pdf, 
+    "\nAssume X is some measurement"
+    " random variable. Xnew and Xbase are the random variables for the new case"
+    " and the base case respectivily. The following are the estimate values for"
+    " the difference Xnew - Xbase. Positive values for the measurement estimate"
+    " indicate that the measurement for the new case is mostly larger than the"
+    " same measurement for the new case.\n\n"
+
+    "For this simulation smaller values are better. So that positive diffs are"
+    " marked with red which indicates larger measurement for the new case."
+    " Negative diffs are marked in green which indicates smaller measurement"
+    " for the new cse. Whenever the confidence interval contains zero this"
+    " indicates a tie and is printed in black.\n\n"
+    )
+    pdf.ln()
 
     # for caseName, caseEstimates in multipleEstimates.items():
     #     estimatesPage(caseName, caseEstimates)
 
     for caseName, caseDiffEstimates in diffEstimatesDict.items():
-        caseParams = newParamsDict[caseName]
-        diffPage(pdf, caseName, baseParams, caseParams, caseDiffEstimates, measures)
+        caseParams = paramsDict[caseName]
+        diffPage(pdf, caseName, paramsDict[baseCase], caseParams, caseDiffEstimates, measures)
 
     return pdf

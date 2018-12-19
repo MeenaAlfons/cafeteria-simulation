@@ -50,7 +50,7 @@ reportPdf = PDF.pdfReport(
     multipleEstimates,
     judgedDiffEstimatesDict,
     measures,
-    casesParams["base"],
+    "base",
     casesParams,
     minN)
 reportPdf.output("data/diffReport.pdf")
