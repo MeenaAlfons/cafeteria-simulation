@@ -1,7 +1,7 @@
 import time
 import functions as F
 import sim_functions as simF
-from params import casesParams
+from params import casesParams, targetConfidenceHalfInterval
 
 start_time = time.time()
 
@@ -9,37 +9,6 @@ start_time = time.time()
 # - Conside finding mean estimate of the output random variables
 # - Conside find persentile estimate of the output random variables
 
-targetConfidenceHalfInterval = {
-  "hotFoodDelayAverage": ('relative', 0.1),
-  "sandwichDelayAverage": ('relative', 0.1),
-  "cashierDelayAverage": ('relative', 0.25),
-
-  "hotFoodDelayMax": ('relative', 0.1),
-  "sandwichDelayMax": ('relative', 0.1),
-  "cashierDelayMax": ('relative', 0.25),
-  
-  "hotFoodTotalDelayAverage": ('relative', 0.1),
-  "sandwichTotalDelayAverage": ('relative', 0.1),
-  "drinksTotalDelayAverage": ('relative', 0.25),
-  
-  "hotFoodTotalDelayMax": ('relative', 0.1),
-  "sandwichTotalDelayMax": ('relative', 0.1),
-  "drinksTotalDelayMax": ('relative', 0.25),
-
-  "overallTotalDelayAverage": ('relative', 0.1),
-  
-  "hotFoodQueueCountTimeAverage": ('relative', 0.1),
-  "hotFoodQueueCountMax": ('relative', 0.1),
-  
-  "sandwichQueueCountTimeAverage": ('relative', 0.2),
-  "sandwichQueueCountMax": ('relative', 0.2),
-  
-  "cashierQueueCountTimeAverage": ('relative', 0.1),
-  "cashierQueueCountMax": ('relative', 0.1),
-  
-  "customerInSystemCountTimeAverage": ('relative', 0.1),
-  "customerInSystemCountTimeMax": ('relative', 0.1),
-}
 
 baseCase = "base"
 newCases = [

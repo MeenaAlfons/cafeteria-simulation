@@ -290,3 +290,11 @@ def computeEstimates(multipleStates, alpha):
         multipleEstimates[key] = calculateMeanEstimate(stats, alpha)
 
     return multipleEstimates
+
+def extractEqualStats(multipleStats, N):
+    equalMultipleStats = {}
+    for caseName, caseStats in multipleStats.items():
+        equalMultipleStats[caseName] = {}
+        for measure, values in caseStats.items():
+            equalMultipleStats[caseName][measure] = values[:N]
+    return equalMultipleStats

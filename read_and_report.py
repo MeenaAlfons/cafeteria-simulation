@@ -25,21 +25,32 @@ allCases = [baseCase] + newCases
 multipleStats = F.readMultipleStats("data/", allCases)
 
 numMeasures = 1
-N = 0
+allN = []
 for caseName, caseStats in multipleStats.items():
     print("Case {} exist.".format(caseName))
     for measure, values in caseStats.items():
         # Make sure values.size is the same
-        N = values.size
+        allN.append(values.size)
     numMeasures = len(caseStats)
 
+minN = min(allN)
+equalMultipleStats = F.extractEqualStats(multipleStats, minN)
+
+
 overall_alpha = 0.1
-alpha = overall_alpha / numMeasures
+alpha = overall_alpha / max(numMeasures, len(allCases))
 
-multipleEstimates = F.computeEstimates(multipleStats, alpha)
-
-diffEstimatesDict = F.compareWithBase(multipleStats, "base", newCases, alpha)
+# Compare Systems
+multipleEstimates = F.computeEstimates(equalMultipleStats, alpha)
+diffEstimatesDict = F.compareWithBase(equalMultipleStats, "base", newCases, alpha)
 judgedDiffEstimatesDict = F.judgeDiffEstimates(diffEstimatesDict)
 
-reportPdf = PDF.pdfReport(multipleEstimates, judgedDiffEstimatesDict, measures, casesParams["base"], casesParams, N)
+
+reportPdf = PDF.pdfReport(
+    multipleEstimates,
+    judgedDiffEstimatesDict,
+    measures,
+    casesParams["base"],
+    casesParams,
+    minN)
 reportPdf.output("data/diffReport.pdf")
