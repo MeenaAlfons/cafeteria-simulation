@@ -298,3 +298,25 @@ def extractEqualStats(multipleStats, N):
         for measure, values in caseStats.items():
             equalMultipleStats[caseName][measure] = values[:N]
     return equalMultipleStats
+
+
+def calculateVariance(stats):
+    results = {}
+    for key, values in stats.items():
+        results[key] = np.var(values, ddof=1)
+    return results
+
+def computeVariances(multipleStats):
+    multipleVariances = {}
+    for key, stats in multipleStates.items():
+        multipleVariances[key] = calculateMeanEstimate(stats)
+    return multipleVariances
+
+def additionalReplicationsForBest(multipleVriances, measureDs, measurePs, N):
+    for caseName, variances in multipleVriances.items():
+        for measure, variance in variances.items():
+            targetReplications = np.ceil( variance * h**2 / d**2 )
+
+            max(N+1, )
+    
+    pass

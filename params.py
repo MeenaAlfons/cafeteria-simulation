@@ -110,3 +110,67 @@ targetConfidenceHalfInterval = {
   "customerInSystemCountTimeAverage": ('relative', 0.1),
   "customerInSystemCountTimeMax": ('relative', 0.1),
 }
+
+measureDs = {
+  "hotFoodDelayAverage": 100,
+  "sandwichDelayAverage": 5,
+  "cashierDelayAverage": 0.001,
+
+  "hotFoodDelayMax": 100,
+  "sandwichDelayMax": 10,
+  "cashierDelayMax": 0.1,
+  
+  "hotFoodTotalDelayAverage": 100,
+  "sandwichTotalDelayAverage": 5,
+  "drinksTotalDelayAverage": 0.01,
+  
+  "hotFoodTotalDelayMax": 100,
+  "sandwichTotalDelayMax": 10,
+  "drinksTotalDelayMax": 0.2,
+
+  "overallTotalDelayAverage": 100,
+  
+  "hotFoodQueueCountTimeAverage": 5,
+  "hotFoodQueueCountMax": 10,
+  
+  "sandwichQueueCountTimeAverage": 0.1,
+  "sandwichQueueCountMax": 0.5,
+  
+  "cashierQueueCountTimeAverage": 0.1,
+  "cashierQueueCountMax": 0.2,
+  
+  "customerInSystemCountTimeAverage": 5,
+  "customerInSystemCountTimeMax": 10,
+}
+
+multiplePs = {
+  "hotFoodDelayAverage": 0.9,
+  "sandwichDelayAverage": 0.9,
+  "cashierDelayAverage": 0.9,
+
+  "hotFoodDelayMax": 0.9,
+  "sandwichDelayMax": 0.9,
+  "cashierDelayMax": 0.9,
+  
+  "hotFoodTotalDelayAverage": 0.9,
+  "sandwichTotalDelayAverage": 0.9,
+  "drinksTotalDelayAverage": 0.9,
+  
+  "hotFoodTotalDelayMax": 0.9,
+  "sandwichTotalDelayMax": 0.9,
+  "drinksTotalDelayMax": 0.9,
+
+  "overallTotalDelayAverage": 0.9,
+  
+  "hotFoodQueueCountTimeAverage": 0.9,
+  "hotFoodQueueCountMax": 0.9,
+  
+  "sandwichQueueCountTimeAverage": 0.9,
+  "sandwichQueueCountMax": 0.9,
+  
+  "cashierQueueCountTimeAverage": 0.9,
+  "cashierQueueCountMax": 0.9,
+  
+  "customerInSystemCountTimeAverage": 0.9,
+  "customerInSystemCountTimeMax": 0.9,
+}

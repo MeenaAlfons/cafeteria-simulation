@@ -1,7 +1,7 @@
 from json_tricks import load
 import functions as F
 import pdf_functions as PDF
-from params import casesParams, measures
+from params import casesParams, measures, measureDs, measurePs
 
 baseCase = "base"
 newCases = [
@@ -45,6 +45,20 @@ multipleEstimates = F.computeEstimates(equalMultipleStats, alpha)
 diffEstimatesDict = F.compareWithBase(equalMultipleStats, "base", newCases, alpha)
 judgedDiffEstimatesDict = F.judgeDiffEstimates(diffEstimatesDict)
 
+# Get Best System
+multipleVriances = F.computeVariances(multipleStats)
+numAdditionalReplications = F.additionalReplicationsForBest(multipleVriances, measureDs, measurePs)
+additionalStats = SimF.simulateMany(allCases, numAdditionalReplications)
+additionalEstimates = F.computeEstimates(additionalStats, alpha)
+bestEstimates = F.computeBestEstimates(
+    numAdditionalReplications,
+    multipleEstimates,
+    additionalEstimates,
+    multipleVriances, 
+    measureDs,
+    measurePs,
+    minN)
+
 
 reportPdf = PDF.pdfReport(
     multipleEstimates,
@@ -52,5 +66,6 @@ reportPdf = PDF.pdfReport(
     measures,
     casesParams["base"],
     casesParams,
-    minN)
+    minN,
+    bestEstimates)
 reportPdf.output("data/diffReport.pdf")
