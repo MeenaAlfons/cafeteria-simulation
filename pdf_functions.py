@@ -88,7 +88,7 @@ def printIntro(pdf, numReplications):
 
     "All the cases have been run number of replications to acheive specific"
     " target confidence interval for each. Then more replication are made for"
-    " each cases so that ll of them will have the same total number of"
+    " each cases so that all of them will have the same total number of"
     " replications."
     
     "Total replications for each case = {}".format(numReplications)
@@ -224,8 +224,14 @@ def printMultipleEstimates(pdf, multipleEstimates, measures):
         slicedEstimates[caseName] = caseEstimates
         if len(slicedEstimates) == casesPerPage:
             pdf.add_page(orientation="L")
+            title(pdf, "Mean Estimates")
             printMultiEstimatesTogether(pdf, slicedEstimates, measures)
             slicedEstimates = {}
+
+    if len(slicedEstimates) > 0:
+        pdf.add_page(orientation="L")
+        printMultiEstimatesTogether(pdf, slicedEstimates, measures)
+
 
     # while i + casesPerPage <= len(multipleEstimates):
     #     pdf.add_page(orientation="L")

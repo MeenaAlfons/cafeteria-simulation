@@ -3,18 +3,16 @@ import cafeteria as cf
 
 def simulateManyWithTarget(models, allCases, targetConfidenceHalfInterval, alpha):
     multipleStates = {}
-    multipleEstimates = {}
     numReplications = {}
     for key in allCases:
         print('')
         print(key + " case simulation: Started ...")
         caseCafeteria = models[key]
-        collectedStats, meanEstimates, N = F.simulateWithTargetConfidence(caseCafeteria, key, targetConfidenceHalfInterval, alpha)
+        collectedStats, N = F.simulateWithTargetConfidence(caseCafeteria, key, targetConfidenceHalfInterval, alpha)
         multipleStates[key] = collectedStats
-        multipleEstimates[key] = meanEstimates
         numReplications[key] = N
         print(key + " case simulation: Finished", N)
-    return multipleStates, multipleEstimates, numReplications
+    return multipleStates, numReplications
 
 def simulateManyEqualized(allCases, casesParams, targetConfidenceHalfInterval, alpha):
     models = {}
@@ -22,7 +20,7 @@ def simulateManyEqualized(allCases, casesParams, targetConfidenceHalfInterval, a
         params = casesParams[key]
         models[key] = cf.Caferetia(**params)
 
-    multipleStates, multipleEstimates, numReplications = simulateManyWithTarget(models, allCases, targetConfidenceHalfInterval, alpha)
+    multipleStates, numReplications = simulateManyWithTarget(models, allCases, targetConfidenceHalfInterval, alpha)
     maxN = 0
     for key, value in numReplications.items():
         if value > maxN:
@@ -36,7 +34,6 @@ def simulateManyEqualized(allCases, casesParams, targetConfidenceHalfInterval, a
         remainingN = maxN - numReplications[key]
         if remainingN > 0:
             print("simulate more {} for {}".format(remainingN, key))
-            collectedStats, meanEstimates = F.simulateMore(caseCafeteria, multipleStates[key], remainingN, alpha)
-            multipleStates[key] = collectedStats
-            multipleEstimates[key] = meanEstimates
-    return multipleStates, multipleEstimates, numReplications, maxN
+            multipleStates[key] = F.simulateMore(caseCafeteria, multipleStates[key], remainingN, alpha)
+
+    return multipleStates, numReplications, maxN

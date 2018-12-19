@@ -1,11 +1,9 @@
 import numpy as np
 import scipy.stats as stats
 import pprint
-import json
 import time
 import datetime
-from json_tricks import dumps
-
+from json_tricks import dumps, load
 
 def rand_with_sum(rand, n):
     while n > 0:
@@ -167,23 +165,20 @@ def calculateMeanEstimate(stats, alpha):
     return results
 
 
-# class NumpyEncoder(json.JSONEncoder):
-#     def default(self, obj):
-#         if type(obj).__module__ == np.__name__:
-#             if isinstance(obj, np.ndarray):
-#                 return obj.tolist()
-#             else:
-#                 return obj.item()
-#         return json.JSONEncoder.default(self, obj)
-
 def writeStatesToFile(stats, filename):
     with open(filename, 'w') as file:
-        # file.write(json.dumps(stats, cls=NumpyEncoder)) # use `json.loads` to do the reverse
         file.write(dumps(stats))
 
 def writeMultipleStatesToFile(multipleStats):
     for key, stats in multipleStats.items():
         writeStatesToFile(stats, "data/"+key+".json")
+
+def readMultipleStats(dirname, cases):
+    multipleStats = {}
+    for case in cases:
+        with open(dirname + case + ".json", 'r') as file:
+            multipleStats[case] = load(file)
+    return multipleStats
         
 def printSummaryPdf(multipleEstimates, filename):
     estimateStr = ''
@@ -215,14 +210,12 @@ def printSummaryPdf(multipleEstimates, filename):
 
 def simulateWithTargetConfidence(cafeteriaModel, name, targetConfidenceHalfInterval, alpha, itersPerTime=10):
     stats, N = achieveTargetConfigenceHalfIntervals(lambda:cafeteriaModel.runManySeparate(itersPerTime), targetConfidenceHalfInterval, alpha)
-    estimates = calculateMeanEstimate(stats, alpha)
-    return stats, estimates, N * itersPerTime
+    return stats, N * itersPerTime
 
 def simulateMore(cafeteriaModel, collectedStats, N, alpha):
     stats = cafeteriaModel.runManySeparate(N)
     collectStats(collectedStats, stats)
-    estimates = calculateMeanEstimate(collectedStats, alpha)
-    return collectedStats, estimates
+    return collectedStats
 
 def pairedTTest(baseValues, newValues, alpha):
     diff = baseValues - newValues
@@ -289,3 +282,11 @@ def compareWithBase(multipleStates, baseCase, newCases, alpha):
         diffEstimatesDict[newCase]["paired_t"] = testMany(pairedTTest, multipleStates[newCase], multipleStates[baseCase], alpha)
         diffEstimatesDict[newCase]["welch"] = testMany(welchTest, multipleStates[newCase], multipleStates[baseCase], alpha)
     return diffEstimatesDict
+
+def computeEstimates(multipleStates, alpha):
+    print("Computing estimates ...")
+    multipleEstimates = {}
+    for key, stats in multipleStates.items():
+        multipleEstimates[key] = calculateMeanEstimate(stats, alpha)
+
+    return multipleEstimates
