@@ -82,27 +82,27 @@ casesParams = {
 targetConfidenceHalfInterval = {
   "hotFoodDelayAverage": ('relative', 0.1),
   "sandwichDelayAverage": ('relative', 0.1),
-  "cashierDelayAverage": ('relative', 0.25),
+  "cashierDelayAverage": ('relative', 0.25), # estimate is very small
 
   "hotFoodDelayMax": ('relative', 0.1),
   "sandwichDelayMax": ('relative', 0.1),
-  "cashierDelayMax": ('relative', 0.25),
+  "cashierDelayMax": ('relative', 0.25), # estimate is very small
   
   "hotFoodTotalDelayAverage": ('relative', 0.1),
   "sandwichTotalDelayAverage": ('relative', 0.1),
-  "drinksTotalDelayAverage": ('relative', 0.25),
+  "drinksTotalDelayAverage": ('relative', 0.25), # estimate is very small
   
   "hotFoodTotalDelayMax": ('relative', 0.1),
   "sandwichTotalDelayMax": ('relative', 0.1),
-  "drinksTotalDelayMax": ('relative', 0.25),
+  "drinksTotalDelayMax": ('relative', 0.25), # estimate is very small
 
   "overallTotalDelayAverage": ('relative', 0.1),
   
   "hotFoodQueueCountTimeAverage": ('relative', 0.1),
   "hotFoodQueueCountMax": ('relative', 0.1),
   
-  "sandwichQueueCountTimeAverage": ('relative', 0.2),
-  "sandwichQueueCountMax": ('relative', 0.2),
+  "sandwichQueueCountTimeAverage": ('relative', 0.1), # was 0.2
+  "sandwichQueueCountMax": ('relative', 0.1),         # was 0.2
   
   "cashierQueueCountTimeAverage": ('relative', 0.1),
   "cashierQueueCountMax": ('relative', 0.1),

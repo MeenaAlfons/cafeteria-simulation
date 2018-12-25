@@ -40,17 +40,42 @@ equalMultipleStats = F.extractEqualStats(multipleStats, minN)
 overall_alpha = 0.1
 alpha = overall_alpha / max(numMeasures, len(allCases))
 
-# Compare Systems
+# Compare all systems with base
 multipleEstimates = F.computeEstimates(equalMultipleStats, alpha)
 diffEstimatesDict = F.compareWithBase(equalMultipleStats, "base", newCases, alpha)
 judgedDiffEstimatesDict = F.judgeDiffEstimates(diffEstimatesDict)
 
+# Compare (a) systems with each other
+diffEstimatesDictWith_a_i = F.compareWithBase(equalMultipleStats, "a_i", ["a_ii", "a_iii"], alpha)
+judgedDiffEstimatesDictWith_a_i = F.judgeDiffEstimates(diffEstimatesDictWith_a_i)
+
+diffEstimatesDictWith_a_ii = F.compareWithBase(equalMultipleStats, "a_ii", ["a_iii"], alpha)
+judgedDiffEstimatesDictWith_a_ii = F.judgeDiffEstimates(diffEstimatesDictWith_a_ii)
+
+# Compare (b) systems with each other
+diffEstimatesDictWith_b_i = F.compareWithBase(equalMultipleStats, "b_i", ["b_ii", "b_iii"], alpha)
+judgedDiffEstimatesDictWith_b_i = F.judgeDiffEstimates(diffEstimatesDictWith_b_i)
+
+diffEstimatesDictWith_b_ii = F.compareWithBase(equalMultipleStats, "b_ii", ["b_iii"], alpha)
+judgedDiffEstimatesDictWith_b_ii = F.judgeDiffEstimates(diffEstimatesDictWith_b_ii)
+
+
 
 reportPdf = PDF.pdfReport(
     multipleEstimates,
-    judgedDiffEstimatesDict,
     measures,
-    "base",
     casesParams,
     minN)
+
+PDF.diffWithStandard(reportPdf, "base", newCases)
+PDF.multipleDiffPages(reportPdf, judgedDiffEstimatesDict, "base", casesParams, measures)
+ 
+PDF.diffMultipleSystems(reportPdf, "(a)", ["a_i", "a_ii", "a_iii"])
+PDF.multipleDiffPages(reportPdf, judgedDiffEstimatesDictWith_a_i, "a_i", casesParams, measures)
+PDF.multipleDiffPages(reportPdf, judgedDiffEstimatesDictWith_a_ii, "a_ii", casesParams, measures)
+ 
+PDF.diffMultipleSystems(reportPdf, "(b)", ["b_i", "b_ii", "b_iii"])
+PDF.multipleDiffPages(reportPdf, judgedDiffEstimatesDictWith_b_i, "b_i", casesParams, measures)
+PDF.multipleDiffPages(reportPdf, judgedDiffEstimatesDictWith_b_ii, "b_ii", casesParams, measures)
+
 reportPdf.output("data/diffReport.pdf")

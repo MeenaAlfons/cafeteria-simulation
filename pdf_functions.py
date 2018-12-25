@@ -138,10 +138,10 @@ def printIntro(pdf, numReplications):
     )
     pdf.ln()
 
-def printCaseIntro(pdf, caseName):
-    title(pdf, "Comparison Case {} vs base".format(caseName))
+def printCaseIntro(pdf, caseName, baseCaseName):
+    title(pdf, "Comparison Case {} vs {}".format(caseName, baseCaseName))
     body(pdf, 
-    "Case {} is compared with the base case.".format(caseName)
+    "Case {} is compared with the {} case.".format(caseName, baseCaseName)
     )
     pdf.ln()
 
@@ -159,18 +159,18 @@ def printParams(pdf, caseName, baseParams, newParams):
     pdf.ln()
 
 
-def pdfOfDiffEstimates(diffEstimatesDict, measures, baseParams, newParamsDict, numReplications):
-    pdf = FPDF()
-    pdf.add_page()
-    printIntro(pdf, numReplications)
-    for caseName, caseDiffEstimates in diffEstimatesDict.items():
-        pdf.add_page()
-        printCaseIntro(pdf, caseName)
-        printParams(pdf, caseName, baseParams, newParamsDict[caseName])
-        printMultiDiffEstimatesTogether(pdf, caseDiffEstimates, measures)
-        # for testName, diffEstimates in caseDiffEstimates.items():  
-        #     printDiffEstimates(pdf, diffEstimates, measures, testName)
-    return pdf
+# def pdfOfDiffEstimates(diffEstimatesDict, measures, baseParams, newParamsDict, numReplications):
+#     pdf = FPDF()
+#     pdf.add_page()
+#     printIntro(pdf, numReplications)
+#     for caseName, caseDiffEstimates in diffEstimatesDict.items():
+#         pdf.add_page()
+#         printCaseIntro(pdf, caseName)
+#         printParams(pdf, caseName, baseParams, newParamsDict[caseName])
+#         printMultiDiffEstimatesTogether(pdf, caseDiffEstimates, measures)
+#         # for testName, diffEstimates in caseDiffEstimates.items():  
+#         #     printDiffEstimates(pdf, diffEstimates, measures, testName)
+#     return pdf
 
 def printMultiDiffEstimatesTogether(pdf, multiDiffEstimates, measures):
     black = {"r":0, "g":0, "b":0}
@@ -287,9 +287,9 @@ def printMultipleEstimates(pdf, multipleEstimates, measures):
 
 
 
-def diffPage(pdf, caseName, baseParams, caseParams, caseDiffEstimates, measures):
+def diffPage(pdf, baseCaseName, baseParams, caseName, caseParams, caseDiffEstimates, measures):
     pdf.add_page()
-    printCaseIntro(pdf, caseName)
+    printCaseIntro(pdf, caseName, baseCaseName)
     printParams(pdf, caseName, baseParams, caseParams)
     printMultiDiffEstimatesTogether(pdf, caseDiffEstimates, measures)
 
@@ -308,7 +308,7 @@ def printCases(pdf, paramsDict):
         pdf.ln()
     pdf.ln()
 
-def pdfReport(multipleEstimates, diffEstimatesDict, measures, baseCase, paramsDict, numReplications):
+def pdfReport(multipleEstimates, measures, paramsDict, numReplications):
     pdf = FPDF()
     pdf.add_page()
     title(pdf, "Introduction")
@@ -365,28 +365,95 @@ def pdfReport(multipleEstimates, diffEstimatesDict, measures, baseCase, paramsDi
     printMultipleEstimates(pdf, multipleEstimates, measures)
 
     
-    pdf.add_page()
-    body(pdf, 
-    "\nAssume X is some measurement"
-    " random variable. Xnew and Xbase are the random variables for the new case"
-    " and the base case respectivily. The following are the estimate values for"
-    " the difference Xnew - Xbase. Positive values for the measurement estimate"
-    " indicate that the measurement for the new case is mostly larger than the"
-    " same measurement for the new case.\n\n"
+    # pdf.add_page()
+    # body(pdf, 
+    # "\nAssume X is some measurement"
+    # " random variable. Xnew and Xbase are the random variables for the new case"
+    # " and the base case respectivily. The following are the estimate values for"
+    # " the difference Xnew - Xbase. Positive values for the measurement estimate"
+    # " indicate that the measurement for the new case is mostly larger than the"
+    # " same measurement for the new case.\n\n"
 
-    "For this simulation smaller values are better. So that positive diffs are"
-    " marked with red which indicates larger measurement for the new case."
-    " Negative diffs are marked in green which indicates smaller measurement"
-    " for the new cse. Whenever the confidence interval contains zero this"
-    " indicates a tie and is printed in black.\n\n"
-    )
-    pdf.ln()
+    # "For this simulation smaller values are better. So that positive diffs are"
+    # " marked with red which indicates larger measurement for the new case."
+    # " Negative diffs are marked in green which indicates smaller measurement"
+    # " for the new cse. Whenever the confidence interval contains zero this"
+    # " indicates a tie and is printed in black.\n\n"
+    # )
+    # pdf.ln()
 
     # for caseName, caseEstimates in multipleEstimates.items():
     #     estimatesPage(caseName, caseEstimates)
 
-    for caseName, caseDiffEstimates in diffEstimatesDict.items():
-        caseParams = paramsDict[caseName]
-        diffPage(pdf, caseName, paramsDict[baseCase], caseParams, caseDiffEstimates, measures)
+    # for caseName, caseDiffEstimates in diffEstimatesDict.items():
+    #     caseParams = paramsDict[caseName]
+    #     diffPage(pdf, baseCase, paramsDict[baseCase], caseName, caseParams, caseDiffEstimates, measures)
 
     return pdf
+
+def multipleDiffPages(pdf, diffEstimatesDict, baseCaseName, paramsDict, measures):
+    for caseName, caseDiffEstimates in diffEstimatesDict.items():
+        caseParams = paramsDict[caseName]
+        diffPage(pdf, baseCaseName, paramsDict[baseCaseName], caseName, caseParams, caseDiffEstimates, measures)
+
+
+def diffPageNotice(pdf):
+    body(pdf,
+    "Notice that the comparison statistics try to estimate the different"
+    " Xnew-Xbase where Xnew and Xbase are random variabes for new and base"
+    " configurations respectively. Positive value mean that Xnew mostly have"
+    " larger values than Xbase."
+    )
+    pdf.ln()
+    
+    body(pdf,
+    "For this simulation smaller values for performance measurements are"
+    " better. So that whenever Xnew compares bigger than Xbase this is"
+    " indicated with red. And whenever Xnew seems smaller than Xbase this is"
+    " indicated with green."
+    )
+    pdf.ln()
+    
+    body(pdf,
+    "Some comparisons are not decicive because their confidence intervals contain zero. Those cases are printed in black because they represent ties."
+    )
+
+
+def diffWithStandard(pdf, baseCase, newCases):
+    pdf.add_page()
+    title(pdf, "Comparison with Standard")
+    pdf.ln()
+    body(pdf,
+    "The following pages contain comparison statistics between each of one"
+    " of the new configurations and the base configuration."
+    )
+    pdf.ln()
+
+    body(pdf,
+    "Base case = {}".format(baseCase)
+    )
+    pdf.ln()
+
+    body(pdf,
+    "New cases = {}".format(newCases)
+    )
+    pdf.ln()
+
+    diffPageNotice(pdf)
+
+
+def diffMultipleSystems(pdf, subtitle, cases):
+    pdf.add_page()
+    title(pdf, "All Pairwise Comparisons - {}".format(subtitle))
+    pdf.ln()
+    body(pdf,
+    "The following pages contain all pairwise comparisons among multiple configurations."
+    )
+    pdf.ln()
+    
+    body(pdf,
+    "Compared cases = {}".format(cases)
+    )
+    pdf.ln()
+
+    diffPageNotice(pdf)
