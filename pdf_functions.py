@@ -308,8 +308,27 @@ def printCases(pdf, paramsDict):
         pdf.ln()
     pdf.ln()
 
+
+class MyPDF(FPDF):
+    def footer(self):
+        # Go to 1.5 cm from bottom
+        self.set_y(-15)
+        # Select Arial italic 8
+        # self.set_font('Arial','I',8)
+        # Print centered page number
+        # self.cell(0,10,'Page {}'.format(self.page_no()),0,0,'C')
+        self.set_font("Arial", size=8)
+        self.set_text_color(100,100,100)
+        self.cell(100, 10, txt='Meena Alfons - Masters', align="R")
+        self.set_text_color(0,0,0)
+        self.cell(0, 10, txt='Page {}'.format(self.page_no()), align="R")
+        # self.set_text_color(100,100,100)
+        # self.cell(0, 10, txt='Meena Alfons - Masters', align="L")
+        self.set_text_color(0,0,0)
+
+
 def pdfReport(multipleEstimates, measures, paramsDict, numReplications):
-    pdf = FPDF()
+    pdf = MyPDF()
     pdf.add_page()
     title(pdf, "Introduction")
     pdf.ln()
